@@ -61,7 +61,7 @@ module GrapeLogging
       def obfuscate_parameters(request_parameters)
         filtered_parameters = request_parameters.clone.to_hash
         sensitive_parameters.each do |param|
-          filtered_parameters[param.to_s] = '***'
+          filtered_parameters[param.to_s] = '[FILTERED]'
         end
         filtered_parameters
       end
