@@ -28,12 +28,13 @@ module GrapeLogging
       protected
       def parameters
         {
-            path: request.path,
-            params: obfuscate_parameters(request.params),
-            method: request.request_method,
-            total: total_runtime,
-            db: @db_duration.round(2),
-            status: @app_response.try(:status) || 200
+          path: request.path,
+          params: obfuscate_parameters(request.params),
+          headers: headers,
+          method: request.request_method,
+          total: total_runtime,
+          db: @db_duration.round(2),
+          status: @app_response.try(:status) || 200
         }
       end
 
@@ -44,6 +45,14 @@ module GrapeLogging
 
       def request
         @request ||= ::Rack::Request.new(env)
+      end
+
+      def headers
+        @header ||= Hash[*env.select { |k, v| k.start_with? 'HTTP_' }
+                            .collect { |k, v| [k.sub(/^HTTP_/, ''), v] }
+                            .collect { |k, v| [k.split('_').collect(&:capitalize).join('-'), v] }
+                            .sort
+                            .flatten]
       end
 
       def total_runtime
