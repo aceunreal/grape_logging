@@ -47,7 +47,11 @@ module GrapeLogging
       end
 
       def headers
-        @header ||= Hash[*env.try(:[], 'HTTP_USER_AGENT')]
+        @header ||= Hash[*env.select { |k, v| k.start_with? 'HTTP_USER_AGENT' }
+                            .collect { |k, v| [k.sub(/^HTTP_/, ''), v] }
+                            .collect { |k, v| [k.split('_').collect(&:capitalize).join('-'), v] }
+                            .sort
+                            .flatten]
       end
 
       def total_runtime
